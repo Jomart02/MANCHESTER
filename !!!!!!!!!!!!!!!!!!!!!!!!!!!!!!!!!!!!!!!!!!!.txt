@@ -1,0 +1,16 @@
+https://www.youtube.com/watch?v=1TfouRUJMQ8
+
+https://www.youtube.com/watch?v=K8Elz-d7sHE
+
+
+!!!!!!!!!!!!!!!!!
+https://www.youtube.com/watch?v=U6h6p1tJ7XM
+https://stackoverflow.com/questions/11774827/writing-to-a-file-asynchronously
+https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/using-async-for-file-access
+https://wellsb.com/csharp/beginners/async-write-to-text-file-csharp
+http://microsin.net/programming/pc/visual-studio-sharp-dot-net-com-port.html
+
+https://studizba.com/files/show/pdf/24648-17-dissertaciya.html
+https://fpga-e.ru/plis/mil-std-1553b-chast-4/     manchester
+https://niiis-micro.ru/downloads/EB-1914VA018_Library.pdf manchester 
+https://lvk.cs.msu.ru/~dimawolf/RTES/Lection05.pdf manchester 
