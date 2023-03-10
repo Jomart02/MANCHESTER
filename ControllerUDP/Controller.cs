@@ -10,6 +10,7 @@ using ProtokolLibrary;
 
 namespace UDPMagistral {
     class ClientController {
+
         private static IPAddress remoteIPAddress;
         private static int remotePort;
         private  const int localPort = 4002;
@@ -24,8 +25,6 @@ namespace UDPMagistral {
         static void Main(string[] args) {
             try {
 
-                //
-                
                 Dictionary < int , string  >  Port_ADDR = new Dictionary < int , string >();
 
                 Port_ADDR.Add(5000, "00011");
@@ -173,6 +172,7 @@ namespace UDPMagistral {
             string A = "0" , B = "0", C = "0", X = "0", D = "0", E = "0", F = "0", G = "0", H = "0";
             string ResponseWord = "";
             
+
             Console.WriteLine("\n-----------Получение сообщений-----------");
 
             while (true) {
@@ -182,19 +182,15 @@ namespace UDPMagistral {
                     byte[] receiveBytes = new byte[1024];
                     for (int i =0; i< receiveBytes.Length;  i++) receiveBytes[i] = 0;
                     
+                    //Получение данных через сокет 
                     udpSocket.ReceiveFrom(receiveBytes, ref RemoteIpEndPoint);
 
                     // Преобразуем и отображаем данные
                     string returnData = Encoding.ASCII.GetString(receiveBytes);
-                    // Console.WriteLine("---)  " + returnData);
-                    if (returnData.Length > 20) {//если пришло информационное слово 
-                        Console.WriteLine(" Полученное сообщение  " + returnData.ToString());
-                        Console.WriteLine(" Декодированное  " + ReadMessageProtokol.ReadInformationWord(returnData, out ResponseWord));
-                        //Console.WriteLine(" --> RESPONSE " + ReadMessageProtokol.ReadResponseWord(ResponseWord));
-                    } else if (returnData.Length == 20) {//Если пришло только ответное слово 
-                        Console.WriteLine(" --> " + returnData.ToString() + "=");
-                        Console.WriteLine(" --> " + ReadMessageProtokol.ReadResponseWord(returnData.ToString()));//Переделать чтение ответного слова 
-                    }
+                    string NMEAmes = "";
+
+                    NMEAmes += ReceiveConnector.GetMessage(returnData);
+
                 } catch (Exception ex) {
                     //Console.WriteLine("Возникло исключение: " + ex.ToString() + "\n  " + ex.Message);
                 }

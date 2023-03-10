@@ -35,7 +35,7 @@ string SUB_ADDR_Check = "00001";
 
 
 //Отправка сообщений 
-string message = "$GLGSV,3,1,09,74,08,001,34,66,55,096,,82,69,,0*59";
+string message = "$GLGSV,3,19,,0*59";
 //byte[] datasend = Encoding.ASCII.GetBytes(message);
 string rec = string.Empty;
 EndPoint remotePoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4002);

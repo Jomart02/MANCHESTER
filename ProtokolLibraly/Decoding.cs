@@ -9,6 +9,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Policy;
+using System.ComponentModel;
 
 namespace ProtokolLibrary {
 
@@ -67,36 +68,6 @@ namespace ProtokolLibrary {
             }
             return Encoding.ASCII.GetString(byteList.ToArray());
         }
-
-
-
-        /*public static string BinaryToStringAll(string bin) {
-            for(int i=0;i<bin.Length;i+=8)
-            return null;
-        }*/
-
-        /* public static string BinaryToStringAll(string bin) {
-             string ascii = string.Empty;
-
-             for (int i = 0; i < bin.Length; i += 8) {
-
-                 ascii += (char)BinaryToDecimal(bin.Substring(i, 8));
-             }
-
-             return ascii;
-         }
-
-         private static int BinaryToDecimal(string bin) {
-             int binLength = bin.Length;
-             double dec = 0;
-
-             for (int i = 0; i < binLength; ++i) {
-                 dec += ((byte)bin[i] - 48) * Math.Pow(2, ((binLength - i) - 1));
-             }
-
-             return (int)dec;
-         }*/
-
 
 
         public static string BinaryToStringAll(string binarymessage) {
@@ -185,6 +156,7 @@ namespace ProtokolLibrary {
             string G = "0";
             string H = "0";
 
+            SYNC_C = "001";
             //string BinMessage = Decoding.StringToBinary(message);//Если идет прием сообщения
             string RW = "";//Не используется в данном случае 
             
@@ -363,6 +335,50 @@ namespace ProtokolLibrary {
 
     #endregion
 
+    #region Прием сообщений коннектором 
+
+    public static class ReceiveConnector {
+        /// <summary>
+        /// Метод для обработки полученного пакета сообщения по сокетам, выделяет нужную информацию и отделяет ИС от ОС, проверяет ОС
+        /// </summary>
+        /// <param name="Message">Полученное сообщение коннектором</param>
+        /// <returns></returns>
+        public static string GetMessage(string Message) {
+
+            string SYNX_C = "001";//Синхронизация для ОС
+            string SYNC_D = "000";//Синхронизация для ИС
+
+            string ResponseWord = ""; 
+            string ReceiveMes = "";
+            string NMEAmes = "";
+
+            for (int i = 0; i < Message.Length; i += 20) {
+                if (Message != null) {
+
+                    if (Message.Substring(i, 3) == SYNX_C) {
+
+                        ResponseWord += Message.Substring(i, 20);
+                        Console.WriteLine( ReadMessageProtokol.ReadResponseWord(ResponseWord) );
+                        //Message.Remove(i, 20);
+
+                    } else if (Message.Substring(i, 3) == SYNC_D) {
+
+                        NMEAmes += Message.Substring(i, 20);
+
+                    }
+                } else break;
+            }
+            Console.WriteLine("Длина нового сообщеия" + NMEAmes.Length);
+
+            ReceiveMes += ReadMessageProtokol.ReadInformationWord(ResponseWord + NMEAmes, out ResponseWord);
+            
+            return ReceiveMes;
+        }
+    }
+
+    #endregion
+
+
     #region Чтение информационного, командного, ответного слов
 
     public static class ReadMessageProtokol {
@@ -415,7 +431,7 @@ namespace ProtokolLibrary {
                 ResponseWord = BinIW.Substring(0, 20);
 
                 string check = BinIW.Remove(0, 20);
-                Console.WriteLine("Без ОС " + check);
+                
                 //int i = 0;
                 while (true) {
 

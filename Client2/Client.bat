@@ -1,0 +1,1 @@
+C:\2022-2023\Diplom\Client2\Client.cproj dotnet run
