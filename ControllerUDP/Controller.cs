@@ -20,58 +20,45 @@ namespace UDPMagistral {
         private static SocketFlags SF = new SocketFlags();
         // private static UdpClient sender = new UdpClient();
         private static IPEndPoint localIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4002);
-
+        
         //[STAThread]
         static void Main(string[] args) {
             try {
 
                 Dictionary < int , string  >  Port_ADDR = new Dictionary < int , string >();
-
+                //Порты и соответствующие адреса абонентов 
                 Port_ADDR.Add(5000, "00011");
                 Port_ADDR.Add(5005, "00101");
                 Port_ADDR.Add(5006, "10101");
                 Port_ADDR.Add(5007, "10110");
-                Port_ADDR.Add(4000, "00001");
+                Port_ADDR.Add(4000, "00001");// - главный порт сервера (При его наличии не нужно знать другие порты - только адресса )
 
-                int[] recivePort = { 5000, 5005 , 4000 };
+                int[] recivePort = { 5000, 5005 , 4000 };//От кого принимаем
                 /*int[] sendPort =   { 5006, 5007 };*/
                 //int[] recivePort = { 4000 };
-                int[] sendPort = { 5006, 5007 };
+                int[] sendPort = { 5006, 5007 };//Кому отправляем
 
                 //Параметры контроллера 
-                int N = 50;
-                
-                int exept = 0;
-                string WR = "";
-                string ADDR_RT = "00010";//1
-
+                int N = 50;//Количество отправляемых слов в пакете 
+                string WR = "";//Контроль отправки 
+                string ADDR_RT = "00010";//1 - адрес контроллера
+                //Командное слово для отправления клиентам 
                 string ComWord = "";
-                // Получаем данные, необходимые для соединения
-                //"Укажите локальный порт");
-
-                //var localIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4002);
+               
                 // начинаем прослушивание входящих сообщений
                 udpSocket.Bind(localIP);
 
 
                 //"Укажите удаленный порт по стандарту 
                 remotePort = 5000;
-                
-
                 //Укажите удаленный IP-адрес"
                 remoteIPAddress = IPAddress.Parse("127.0.0.1");
-
-               /* //клиент для проверки =================
-                UdpClient receivingcheck = new UdpClient(localPort);
-                IPEndPoint RemoteIpEndPoint = null;
-                //=====================================*/
 
                 // Создаем поток для прослушивания
                 Thread tRec = new Thread(new ThreadStart(Receiver));
                 tRec.Start();
 
-                //"00100001101101111101"
-
+                // Отправка сообщений в асинхронном режиме
                 int i = 0, j=0;
                 while (true) {
                     
@@ -79,25 +66,28 @@ namespace UDPMagistral {
                     if (i == recivePort.Length) { i = 0; }
                     remotePort = recivePort[i];
                     ComWord = MessageProtokol.CommandWord(  Port_ADDR [recivePort[i] ]  , ADDR_RT , "1" , N ,  "001");
-                    
-                    Send(ComWord);
+
+                    SendToSources(ComWord);
                     Thread.Sleep(100);
                     i++;
 
                     if (j == sendPort.Length) { j = 0; }
                     remotePort = sendPort[j];
                     ComWord = MessageProtokol.CommandWord( Port_ADDR[ sendPort[j] ], ADDR_RT, "0", N, "001");
-                    
-                    SendA(ComWord);
 
-                   // j++;
+                    SendToReceivers(ComWord);
+                    Thread.Sleep(100);
+                    j++;
                 }
             } catch (Exception ex) {
                 Console.WriteLine("Возникло исключение: " + ex.ToString() + "\n  " + ex.Message);
             }
         }
-
-        private static void Send(string datagram) {
+        /// <summary>
+        /// Метод для отправки сообщений к источникам 
+        /// </summary>
+        /// <param name="datagram">Сформированное командное слово</param>
+        private static void SendToSources(string Command_Word) {
             // Создаем UdpClient
             UdpClient sender = new UdpClient();
 
@@ -106,7 +96,7 @@ namespace UDPMagistral {
 
             try {
                 // Преобразуем данные в массив байтов
-                byte[] bytes = Encoding.ASCII.GetBytes(datagram);
+                byte[] bytes = Encoding.ASCII.GetBytes(Command_Word);
 
                 // Отправляем данные
                 //sender.Send(bytes, bytes.Length, endPoint);
@@ -121,9 +111,12 @@ namespace UDPMagistral {
                 sender.Close();
             }*/
         }
-        
-        private static void SendA(string Command_Word) {
-            // Создаем UdpClient
+
+        /// <summary>
+        ///Метод для отправки приемникам 
+        /// </summary>
+        /// <param name="Command_Word"></param>
+        private static void SendToReceivers(string Command_Word) {
             
             string message = "$GNGLL,03740.69200,E,102030.000,A,A*1A";
             UdpClient sender = new UdpClient();
@@ -132,8 +125,7 @@ namespace UDPMagistral {
             string ADDR_T = "";
             string SUB_ADDR = "";
             char WR = '0';
-            int exept = 0;
-
+            
             ReadMessageProtokol.ReadCommandWord(Command_Word, out N, out SYNS_C,out ADDR_T,out SUB_ADDR,out WR);
             
             // Создаем endPoint по информации об удаленном хосте
@@ -158,7 +150,9 @@ namespace UDPMagistral {
             }*/
         }
 
-
+        /// <summary>
+        /// Метод для приема ОС и ИС от абонентов в отдельном потоке 
+        /// </summary>
         public static void Receiver() {
 
             // Создаем UdpClient для чтения входящих данных

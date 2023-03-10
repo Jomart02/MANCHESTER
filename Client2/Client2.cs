@@ -32,7 +32,8 @@ char WR = ' ';
 
 string ADDR_RT_Check = "00101";
 string SUB_ADDR_Check = "00001";
-
+//Задержка работы данного абонетта
+int PAUSE = 1000;
 
 //Отправка сообщений 
 string message = "$GLGSV,3,19,,0*59";
@@ -48,7 +49,8 @@ while (true) {
     var messageres = Encoding.ASCII.GetString(datares, 0, result.ReceivedBytes);
 
 
-    ReadMessageProtokol.ReadCommandWord(messageres, out N, out SYNS_C, out ADDR_RT_Check, out SUB_ADDR_Check, out WR);
+    ReadMessageProtokol.ReadCommandWord(messageres, out N, out SYNS_C, out ADDR_RT_Check, out SUB_ADDR_Check, out WR); 
+    //Если пришло нужное нам КС - то начинаем формирование ответного слова и информационного
     if (ADDR_RT_Check == ADDR_RT && WR == '1' && SUB_ADDR_Check == SUB_ADDR) {
 
         rec = SendMessageProtokol.StartSend(message, SYNS_C, ADDR_RT_Check, WR.ToString(), SUB_ADDR_Check, N);
@@ -59,5 +61,5 @@ while (true) {
         Console.WriteLine($"Отправлено {bytes} байт cообщения {message}");
     }
 
-    Thread.Sleep(1000);
+    Thread.Sleep(PAUSE);
 }
