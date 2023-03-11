@@ -20,7 +20,7 @@ namespace UDPMagistral {
         private static SocketFlags SF = new SocketFlags();
         // private static UdpClient sender = new UdpClient();
         private static IPEndPoint localIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4002);
-        
+
         //[STAThread]
         static void Main(string[] args) {
             try {
