@@ -17,13 +17,44 @@ namespace ProtokolLibraly {
 
             Dictionary<string, string> PROTOCKOL_MESSAGE = new Dictionary<string, string> {
 
+                {   "TIME",             "000000.00"     },
                 {   "DATE",             "000000"        },
-                {   "TIME",             "000000.00"     }
+                {   "LATITUDE",         "0000.0000"     },  //Широта 
+                {   "NS_INDICATOR",     "N"             },  //Север/Юг (N/S).
+                {   "LONGITUDE",        "00000.0000"    },  //Долгота
+                {   "EW_INDICATOR",     "E"             },  //Запад/Восток (E/W).
+                {   "VELOCITY_KNOTS",   "000.0"         },  //Скорость  - в узлах 
+                {   "UNITS_KNOTS",      "N"             },  //Единицы измерения - узлы
+                {   "VELOCITY_KMPH",    "00.0"          },  //Скорость км/ч  - KMPH - kilometer per hour. 
+                {   "UNITS_KMPH",       "K"             },  //Единицы измерения - км/ч
+                {   "TRUE_COURSE",      "000.0"         }   //Истинный курс
+
             };
+
+            //Словарь для фиксации изменения данных => если в пришедшем сообщении и действующем сообщении контроллера данные равны - 
+            //- значит данные старые =Ю индекс == 0
+            //Исли данные обновятся ==> 1
+            Dictionary<string, int> PROTOCKOL_CHECKDATA = new Dictionary<string, int> {
+
+                {   "TIME",             0               },
+                {   "DATE",             0               },
+                {   "LATITUDE",         0               },  //Широта 
+                {   "NS_INDICATOR",     0               },  //Север/Юг (N/S).
+                {   "LONGITUDE",        0               },  //Долгота
+                {   "EW_INDICATOR",     0               },  //Запад/Восток (E/W).
+                {   "VELOCITY_KNOTS",   0               },  //Скорость  - в узлах 
+                {   "UNITS_KNOTS",      0               },  //Единицы измерения - узлы
+                {   "VELOCITY_KMPH",    0               },  //Скорость км/ч  - KMPH - kilometer per hour. 
+                {   "UNITS_KMPH",       0               },  //Единицы измерения - км/ч
+                {   "TRUE_COURSE",      0               }   //Истинный курс
+            
+            }
+            ;
 
             NMEAReader N = new NMEAReader();
 
             N.GetData(NMEA_MES, PROTOCKOL_MESSAGE);
+
             return "";
         }
     }

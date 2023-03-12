@@ -128,6 +128,7 @@ namespace ProtokolLibrary {
             //string Quantity_Word = "00000"; //число слов которое будет передано ???
 
             string binaryNum = Convert.ToString(N, 2);
+
             while (binaryNum.Length <5) binaryNum = "0" + binaryNum;//Для устранения недостающих знаков при кодировке
 
             string ParityBit = GetParityBit($"{Addres}{WR}{Sub_Addres}{binaryNum}");
@@ -214,7 +215,7 @@ namespace ProtokolLibrary {
 
             
             string BinMessage = Decoding.StringToBinary(message);
-
+            
             string recive = string.Empty;
             switch (WR) {
                 case "0":
@@ -250,7 +251,7 @@ namespace ProtokolLibrary {
             int regstart = 0; // фиксирует отправку кс 
             int i = 0;
             string recive = "";
-            
+
             while (true) {
 
                 //Определение порядка отправляемых слов 
@@ -352,23 +353,25 @@ namespace ProtokolLibrary {
             string ReceiveMes = "";
             string NMEAmes = "";
 
+            
             for (int i = 0; i < Message.Length; i += 20) {
-                if (Message != null) {
+
+
+                if (Message != null || Message[i] != null) {
 
                     if (Message.Substring(i, 3) == SYNX_C) {
 
                         ResponseWord += Message.Substring(i, 20);
-                        Console.WriteLine( ReadMessageProtokol.ReadResponseWord(ResponseWord) );
                         //Message.Remove(i, 20);
 
                     } else if (Message.Substring(i, 3) == SYNC_D) {
 
                         NMEAmes += Message.Substring(i, 20);
-
                     }
                 } else break;
             }
-            Console.WriteLine("Длина нового сообщеия" + NMEAmes.Length);
+
+         
 
             ReceiveMes += ReadMessageProtokol.ReadInformationWord(ResponseWord + NMEAmes, out ResponseWord);
             

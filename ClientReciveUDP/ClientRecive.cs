@@ -16,7 +16,7 @@ var localIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5006);
 udpSocket.Bind(localIP);
 Console.WriteLine("Клиент запущен - ождание КС...");
 
-byte[] datares = new byte[512]; // буфер для получаемых данных
+byte[] datares = new byte[1024]; // буфер для получаемых данных
 //адрес, с которого пришли данные
 EndPoint remoteIp = new IPEndPoint(IPAddress.Any, 0);
 SocketFlags SF = new SocketFlags();
@@ -63,7 +63,7 @@ while (true) {
         
         rec = SendMessageProtokol.StartSend(messageres, SYNS_C, SUB_ADDR, "2", ADDR_RT, N);
         
-        Console.WriteLine(rec);
+        
         byte[] datasend = Encoding.ASCII.GetBytes(rec);
 
         int bytes = await udpSocket.SendToAsync(datasend, SF, remotePoint);

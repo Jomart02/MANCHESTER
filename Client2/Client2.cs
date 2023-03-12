@@ -36,10 +36,11 @@ string SUB_ADDR_Check = "00001";
 int PAUSE = 1000;
 
 //Отправка сообщений 
-string message = "$GLGSV,3,19,,0*59";
+string message = "$GPRMC,123519.00,A,4807.038,N,01131.000,E,,,230394,,,A*6A";
 //byte[] datasend = Encoding.ASCII.GetBytes(message);
 string rec = string.Empty;
 EndPoint remotePoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4002);
+
 
 
 while (true) {
@@ -52,10 +53,13 @@ while (true) {
     ReadMessageProtokol.ReadCommandWord(messageres, out N, out SYNS_C, out ADDR_RT_Check, out SUB_ADDR_Check, out WR); 
     //Если пришло нужное нам КС - то начинаем формирование ответного слова и информационного
     if (ADDR_RT_Check == ADDR_RT && WR == '1' && SUB_ADDR_Check == SUB_ADDR) {
-
+        Console.WriteLine(N);
         rec = SendMessageProtokol.StartSend(message, SYNS_C, ADDR_RT_Check, WR.ToString(), SUB_ADDR_Check, N);
 
+        Console.WriteLine(rec.Length);
+
         byte[] datasend = Encoding.ASCII.GetBytes(rec);
+        await udpSocket.SendToAsync(datasend, SF, remotePoint);
 
         int bytes = await udpSocket.SendToAsync(datasend, SF, remotePoint);
         Console.WriteLine($"Отправлено {bytes} байт cообщения {message}");

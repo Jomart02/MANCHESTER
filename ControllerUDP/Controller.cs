@@ -21,6 +21,8 @@ namespace UDPMagistral {
         // private static UdpClient sender = new UdpClient();
         private static IPEndPoint localIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4002);
 
+        private static string PROTOCOL_MESSAGE = "";
+
         //[STAThread]
         static void Main(string[] args) {
             try {
@@ -39,7 +41,7 @@ namespace UDPMagistral {
                 int[] sendPort = { 5006, 5007 };//Кому отправляем
 
                 //Параметры контроллера 
-                int N = 50;//Количество отправляемых слов в пакете 
+                int N = 30;//Количество отправляемых слов в пакете 
                 string WR = "";//Контроль отправки 
                 string ADDR_RT = "00010";//1 - адрес контроллера
                 //Командное слово для отправления клиентам 
@@ -78,6 +80,7 @@ namespace UDPMagistral {
                     SendToReceivers(ComWord);
                     Thread.Sleep(100);
                     j++;
+
                 }
             } catch (Exception ex) {
                 Console.WriteLine("Возникло исключение: " + ex.ToString() + "\n  " + ex.Message);
@@ -118,9 +121,10 @@ namespace UDPMagistral {
         /// <param name="Command_Word"></param>
         private static void SendToReceivers(string Command_Word) {
             
-            string message = "$GNGLL,03740.69200,E,102030.000,A,A*1A";
+            string message = PROTOCOL_MESSAGE;
+            Console.WriteLine("===" +  PROTOCOL_MESSAGE );
             UdpClient sender = new UdpClient();
-            int N = 40;
+            int N = 80;
             string SYNS_C = "";
             string ADDR_T = "";
             string SUB_ADDR = "";
@@ -182,7 +186,8 @@ namespace UDPMagistral {
                     string returnData = Encoding.ASCII.GetString(receiveBytes);
                     string NMEAmes = "";
 
-                    NMEAmes += ReceiveConnector.GetMessage(returnData);
+                    Console.WriteLine( ReceiveConnector.GetMessage(returnData) );
+                    PROTOCOL_MESSAGE = ReceiveConnector.GetMessage(returnData);
 
                 } catch (Exception ex) {
                     //Console.WriteLine("Возникло исключение: " + ex.ToString() + "\n  " + ex.Message);
