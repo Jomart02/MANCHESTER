@@ -15,7 +15,7 @@ var localIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5005);
 udpSocket.Bind(localIP);
 Console.WriteLine("Клиент запущен - ождание КС...");
 
-byte[] datares = new byte[512]; // буфер для получаемых данных
+byte[] datares = new byte[2048]; // буфер для получаемых данных
 //адрес, с которого пришли данные
 EndPoint remoteIp = new IPEndPoint(IPAddress.Any, 0);
 SocketFlags SF = new SocketFlags();

@@ -6,14 +6,24 @@ using System.Linq;
 using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace ProtokolLibraly {
 
 
     public class ProtokolMessage {
 
+
+        /// <summary>
+        /// Метод возвращает сообщение по протоколу контроллера 
+        /// </summary>
+        /// <param name="NMEA_MES"></param>
+        /// <returns></returns>
         public string GetMessage(string NMEA_MES) {
 
+
+            string CODE = "PPPP";
+            string CONTROL_SUM = "";
 
             Dictionary<string, string> PROTOCKOL_MESSAGE = new Dictionary<string, string> {
 
@@ -48,14 +58,21 @@ namespace ProtokolLibraly {
                 {   "UNITS_KMPH",       0               },  //Единицы измерения - км/ч
                 {   "TRUE_COURSE",      0               }   //Истинный курс
             
-            }
-            ;
+            };
 
             NMEAReader N = new NMEAReader();
 
-            N.GetData(NMEA_MES, PROTOCKOL_MESSAGE);
+           // N.GetData(NMEA_MES, PROTOCKOL_MESSAGE);
+           string SEND_PM = $"{CODE},{PROTOCKOL_MESSAGE["TIME"]},{PROTOCKOL_MESSAGE["DATE"]}," +
+                    $"{PROTOCKOL_MESSAGE["LATITUDE"]},{PROTOCKOL_MESSAGE["NS_INDICATOR"]}," +
+                    $"{PROTOCKOL_MESSAGE["LONGITUDE"]},{PROTOCKOL_MESSAGE["EW_INDICATOR"]}," +
+                    $"{PROTOCKOL_MESSAGE["VELOCITY_KNOTS"]},{PROTOCKOL_MESSAGE["UNITS_KNOTS"]}," +
+                    $"{PROTOCKOL_MESSAGE["VELOCITY_KMPH"]},{PROTOCKOL_MESSAGE["UNITS_KMPH"]}," +
+                    $"{PROTOCKOL_MESSAGE["TRUE_COURSE"]},";
 
-            return "";
+            CONTROL_SUM = N.GetChecksum(SEND_PM);
+
+            return  $"${SEND_PM}*{CONTROL_SUM}";
         }
     }
 
@@ -168,6 +185,20 @@ namespace ProtokolLibraly {
             //Возвращает массив сообщений 
             return MasMessage;
         }
+
+        internal string GetChecksum(string message) {
+            //Стартовый символ
+            int checksum = Convert.ToByte(message[0]);
+
+            // Перебор всех символов для получения кс
+            for (int i = 0; i < message.Length; i++) {
+                // XOR кс по каждому символу
+                checksum ^= Convert.ToByte(message[i]);
+            }
+            // Возвращает контрольную сумму, отформатированную в виде двухсимвольного шестнадцатеричного числа
+            return checksum.ToString("X2");
+        }
+
 
     }
 

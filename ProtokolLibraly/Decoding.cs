@@ -219,12 +219,12 @@ namespace ProtokolLibrary {
             string recive = string.Empty;
             switch (WR) {
                 case "0":
-                    recive = WriteMessageUDP(BinMessage, message, SYNC, Addres, WR, Sub_Addres, N);
+                    recive = PackageFormation(BinMessage, message, SYNC, Addres, WR, Sub_Addres, N);
 
                     break;
 
                 case "1":
-                    recive = WriteMessageUDP(BinMessage, message, SYNC, Addres, WR, Sub_Addres, N);
+                    recive = PackageFormation(BinMessage, message, SYNC, Addres, WR, Sub_Addres, N);
                     break;
 
                 case "2":
@@ -245,7 +245,7 @@ namespace ProtokolLibrary {
         /// <param name="Sub_Addres">Адрес отправляющего устройства - 5 бит</param>
         /// <param name="N">Число принимаемых информационных слов  - 5 бит</param>
         /// <returns></returns>
-        private static string WriteMessageUDP(string Bin_Message,string message, string SYNC, string Addres, string WR,string Sub_Addres, int N) {
+        private static string PackageFormation(string Bin_Message,string message, string SYNC, string Addres, string WR,string Sub_Addres, int N) {
 
             string two_symvol = "";
             int regstart = 0; // фиксирует отправку кс 
@@ -267,7 +267,7 @@ namespace ProtokolLibrary {
                     regstart++;
                     
                 }
-                if (i < N) {//Для формирования указанного пакета строк 
+                if (i <= N) {//Для формирования указанного пакета строк 
 
                     if (Bin_Message.Length >= 16) {//сообщение может быть 8бит 
 
@@ -282,6 +282,13 @@ namespace ProtokolLibrary {
                     } else break;
 
                     i++;
+
+                    if (Bin_Message.Length > 0 && i > N) {
+                        regstart = 0;
+                        i= 0;
+                    }
+
+
                 } else { break; }
             }
 
@@ -338,13 +345,13 @@ namespace ProtokolLibrary {
 
     #region Прием сообщений коннектором 
 
-    public static class ReceiveConnector {
+    public static class Receive {
         /// <summary>
         /// Метод для обработки полученного пакета сообщения по сокетам, выделяет нужную информацию и отделяет ИС от ОС, проверяет ОС
         /// </summary>
         /// <param name="Message">Полученное сообщение коннектором</param>
         /// <returns></returns>
-        public static string GetMessage(string Message) {
+        public static string GetMessageConnector(string Message) {
 
             string SYNX_C = "001";//Синхронизация для ОС
             string SYNC_D = "000";//Синхронизация для ИС
@@ -375,6 +382,40 @@ namespace ProtokolLibrary {
 
             ReceiveMes += ReadMessageProtokol.ReadInformationWord(ResponseWord + NMEAmes, out ResponseWord);
             
+            return ReceiveMes;
+        }
+
+        public static string GetMessageClient(string Message) {
+
+            string SYNX_C = "001";//Синхронизация для КС
+            string SYNC_D = "000";//Синхронизация для ИС
+
+            string CommandWord = "";
+            string ReceiveMes = "";
+            string NMEAmes = "";
+
+
+            for (int i = 0; i < Message.Length; i += 20) {
+
+
+                if (Message != null || Message[i] != null) {
+
+                    if (Message.Substring(i, 3) == SYNX_C) {
+
+                        CommandWord += Message.Substring(i, 20);
+                        //Message.Remove(i, 20);
+
+                    } else if (Message.Substring(i, 3) == SYNC_D) {
+
+                        NMEAmes += Message.Substring(i, 20);
+                    }
+                } else break;
+            }
+
+
+
+            ReceiveMes += ReadMessageProtokol.ReadInformationWord(CommandWord + NMEAmes, out CommandWord);
+
             return ReceiveMes;
         }
     }

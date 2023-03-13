@@ -15,7 +15,7 @@ var localIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5000);
 udpSocket.Bind(localIP);
 Console.WriteLine("Клиент запущен - ождание КС...");
 
-byte[] datares = new byte[512]; // буфер для получаемых данных
+byte[] datares = new byte[2048]; // буфер для получаемых данных
 //адрес, с которого пришли данные
 EndPoint remoteIp = new IPEndPoint(IPAddress.Any, 0);
 SocketFlags SF = new SocketFlags();
@@ -33,7 +33,7 @@ char WR = ' ';
 string ADDR_RT_Check = "00101";
 string SUB_ADDR_Check = "00001";
 //Задержка работы данного абонетта
-int PAUSE = 2000;
+int PAUSE = 3000;
 
 //Отправка сообщений 
 string message = "$GPRMC,123519.00,A.000,E,,,230394,,,A*6A";

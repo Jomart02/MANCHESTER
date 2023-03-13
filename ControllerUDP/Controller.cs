@@ -5,7 +5,7 @@ using System.Net.Sockets;
 //using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
-
+using ProtokolLibraly;
 using ProtokolLibrary;
 
 namespace UDPMagistral {
@@ -13,7 +13,7 @@ namespace UDPMagistral {
 
         private static IPAddress remoteIPAddress;
         private static int remotePort;
-        private  const int localPort = 4002;
+        private const int localPort = 4002;
 
         //Обьявление клиента 
         private static Socket udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -21,7 +21,9 @@ namespace UDPMagistral {
         // private static UdpClient sender = new UdpClient();
         private static IPEndPoint localIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4002);
 
-        private static string PROTOCOL_MESSAGE = "";
+        //Для получаения сообщения по протоколу конроллера 
+        private static string PROTOCOL_MESSAGE = "$PPPP,000000.00,000000,0000.0000,N,00000.0000,E,000.0,N,00.0,K,000.0,*5E"; //-стандартное сообщение 
+        private static ProtokolMessage MESSAGE = new ProtokolMessage();
 
         //[STAThread]
         static void Main(string[] args) {
@@ -36,12 +38,10 @@ namespace UDPMagistral {
                 Port_ADDR.Add(4000, "00001");// - главный порт сервера (При его наличии не нужно знать другие порты - только адресса )
 
                 int[] recivePort = { 5000, 5005 , 4000 };//От кого принимаем
-                /*int[] sendPort =   { 5006, 5007 };*/
-                //int[] recivePort = { 4000 };
                 int[] sendPort = { 5006, 5007 };//Кому отправляем
 
                 //Параметры контроллера 
-                int N = 30;//Количество отправляемых слов в пакете 
+                int N = 20;//Количество отправляемых ИС в пакете 
                 string WR = "";//Контроль отправки 
                 string ADDR_RT = "00010";//1 - адрес контроллера
                 //Командное слово для отправления клиентам 
@@ -122,9 +122,8 @@ namespace UDPMagistral {
         private static void SendToReceivers(string Command_Word) {
             
             string message = PROTOCOL_MESSAGE;
-            Console.WriteLine("===" +  PROTOCOL_MESSAGE );
             UdpClient sender = new UdpClient();
-            int N = 80;
+            int N = 0;
             string SYNS_C = "";
             string ADDR_T = "";
             string SUB_ADDR = "";
@@ -176,7 +175,7 @@ namespace UDPMagistral {
                 // Ожидание дейтаграммы
                 //byte[] receiveBytes = receivingUdpClient.Receive(ref RemoteIpEndPoint);
                 try {
-                    byte[] receiveBytes = new byte[1024];
+                    byte[] receiveBytes = new byte[2048];
                     for (int i =0; i< receiveBytes.Length;  i++) receiveBytes[i] = 0;
                     
                     //Получение данных через сокет 
@@ -184,10 +183,13 @@ namespace UDPMagistral {
 
                     // Преобразуем и отображаем данные
                     string returnData = Encoding.ASCII.GetString(receiveBytes);
-                    string NMEAmes = "";
+                    string NMEAmes = Receive.GetMessageConnector(returnData);
 
-                    Console.WriteLine( ReceiveConnector.GetMessage(returnData) );
-                    PROTOCOL_MESSAGE = ReceiveConnector.GetMessage(returnData);
+                    Console.WriteLine( Receive.GetMessageConnector(returnData) );
+
+                    PROTOCOL_MESSAGE = MESSAGE.GetMessage(NMEAmes);
+                    
+                    Console.WriteLine("===" + PROTOCOL_MESSAGE);
 
                 } catch (Exception ex) {
                     //Console.WriteLine("Возникло исключение: " + ex.ToString() + "\n  " + ex.Message);

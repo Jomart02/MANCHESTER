@@ -1,1 +1,1 @@
-C:\2022-2023\Diplom\Client2\Client.cproj dotnet run
+C:\2022-2023\Diplom\Client2 "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\Roslyn\csc.exe" Client2.cs

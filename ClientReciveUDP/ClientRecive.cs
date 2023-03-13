@@ -16,7 +16,7 @@ var localIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5006);
 udpSocket.Bind(localIP);
 Console.WriteLine("Клиент запущен - ождание КС...");
 
-byte[] datares = new byte[1024]; // буфер для получаемых данных
+byte[] datares = new byte[2048]; // буфер для получаемых данных
 //адрес, с которого пришли данные
 EndPoint remoteIp = new IPEndPoint(IPAddress.Any, 0);
 SocketFlags SF = new SocketFlags();
@@ -59,7 +59,7 @@ while (true) {
     //Если пришло нужное нам КС - то начинаем формирование ответного слова и чтения сообщения 
     if (ADDR_RT_Check == ADDR_RT && WR == '0' && SUB_ADDR_Check == SUB_ADDR) {
         
-        Console.WriteLine(ReadMessageProtokol.ReadInformationWord(messageres,out ResponseWord));
+        Console.WriteLine(Receive.GetMessageClient(messageres));
         
         rec = SendMessageProtokol.StartSend(messageres, SYNS_C, SUB_ADDR, "2", ADDR_RT, N);
         
