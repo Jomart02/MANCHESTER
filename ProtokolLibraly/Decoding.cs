@@ -296,48 +296,6 @@ namespace ProtokolLibrary {
 
         }
 
-
-       /* private static void WriteMessage(string Bin_Message, string SYNC, string Addres, string WR, int N) {
-            try {
-                string two_symvol = "";
-                int regstart = 0; // фиксирует отправку кс 
-                int i = 0;
-
-                using (StreamWriter Wr = new StreamWriter(resfile, true)) {
-                    while (true) {
-
-                        //Определение порядка отправляемых слов 
-                        if (WR == "0" && regstart == 0) {
-                            regstart++;
-                        } else if (WR == "1" && regstart == 0) {
-                            
-                           // Wr.WriteLine("Ответное слово  " + MessageProtokol.ResponseWord(SYNC, Addres));
-                            regstart++;
-                        }
-                        if (i < N) {//Для формирования указанного пакета строк 
-
-                            if (Bin_Message.Length >= 16) {//сообщение может быть 8бит 
-
-                                two_symvol = Bin_Message.Substring(0, 16);
-                                Bin_Message = Bin_Message.Remove(0, 16);
-                                Wr.WriteLine($"ИС номер {i}  " + MessageProtokol.InformationWord(two_symvol)); //отправка информационного слова 
-                            } else if (Bin_Message.Length == 8) {
-
-                                two_symvol = Bin_Message.Substring(0, 8);
-                                Bin_Message = Bin_Message.Remove(0, 8);
-                                Wr.WriteLine($"ИС номер {i}  " + MessageProtokol.InformationWord(two_symvol));
-                            } else break;
-
-                            i++;
-                        } else { break; }
-                    }
-
-                }
-
-            } catch (Exception e) { Console.WriteLine(e.Message); }
-
-
-        }*/
     }
 
 
@@ -380,8 +338,9 @@ namespace ProtokolLibrary {
 
          
 
-            ReceiveMes += ReadMessageProtokol.ReadInformationWord(ResponseWord + NMEAmes, out ResponseWord);
+            ReceiveMes += ReadMessageProtokol.ReadInformationWord(NMEAmes);
             
+
             return ReceiveMes;
         }
 
@@ -414,7 +373,7 @@ namespace ProtokolLibrary {
 
 
 
-            ReceiveMes += ReadMessageProtokol.ReadInformationWord(CommandWord + NMEAmes, out CommandWord);
+            ReceiveMes += ReadMessageProtokol.ReadInformationWord(NMEAmes);
 
             return ReceiveMes;
         }
@@ -467,8 +426,8 @@ namespace ProtokolLibrary {
         /// 
         /// <returns></returns>
         public static string ReadInformationWord(string BinIW, out string ResponseWord) {
+            
             string inform = "";
-
 
             if (BinIW.Length >= 20) {
 
@@ -490,6 +449,29 @@ namespace ProtokolLibrary {
                 return "Error";
             }
             
+            return Decoding.BinaryToStringAll(inform);
+        }
+
+
+        public static string ReadInformationWord(string BinIW) {
+
+            string inform = "";
+            string check = BinIW; 
+            if (BinIW.Length >= 20) {
+
+                //int i = 0;
+                while (true) {
+
+                    inform += check.Substring(3, 16);
+                    check = check.Remove(0, 20);
+                    if (check.Length < 20) break;
+
+                }
+            } else {
+
+                return "Error";
+            }
+
             return Decoding.BinaryToStringAll(inform);
         }
 

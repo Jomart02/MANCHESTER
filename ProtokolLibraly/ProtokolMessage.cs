@@ -14,18 +14,8 @@ namespace ProtokolLibraly {
     public class ProtokolMessage {
 
 
-        /// <summary>
-        /// Метод возвращает сообщение по протоколу контроллера 
-        /// </summary>
-        /// <param name="NMEA_MES"></param>
-        /// <returns></returns>
-        public string GetMessage(string NMEA_MES) {
 
-
-            string CODE = "PPPP";
-            string CONTROL_SUM = "";
-
-            Dictionary<string, string> PROTOCKOL_MESSAGE = new Dictionary<string, string> {
+        Dictionary<string, string> PROTOCKOL_MESSAGE = new Dictionary<string, string> {
 
                 {   "TIME",             "000000.00"     },
                 {   "DATE",             "000000"        },
@@ -41,10 +31,10 @@ namespace ProtokolLibraly {
 
             };
 
-            //Словарь для фиксации изменения данных => если в пришедшем сообщении и действующем сообщении контроллера данные равны - 
-            //- значит данные старые =Ю индекс == 0
-            //Исли данные обновятся ==> 1
-            Dictionary<string, int> PROTOCKOL_CHECKDATA = new Dictionary<string, int> {
+        //Словарь для фиксации изменения данных => если в пришедшем сообщении и действующем сообщении контроллера данные равны - 
+        //- значит данные старые =Ю индекс == 0
+        //Исли данные обновятся ==> 1
+        Dictionary<string, int> PROTOCKOL_CHECKDATA = new Dictionary<string, int> {
 
                 {   "TIME",             0               },
                 {   "DATE",             0               },
@@ -59,6 +49,17 @@ namespace ProtokolLibraly {
                 {   "TRUE_COURSE",      0               }   //Истинный курс
             
             };
+
+        /// <summary>
+        /// Метод возвращает сообщение по протоколу контроллера 
+        /// </summary>
+        /// <param name="NMEA_MES"></param>
+        /// <returns></returns>
+        public string GetMessage(string NMEA_MES) {
+
+
+            string CODE = "PPPP";
+            string CONTROL_SUM = "";
 
             NMEAReader N = new NMEAReader();
 
@@ -82,6 +83,8 @@ namespace ProtokolLibraly {
         private const string CheckGGL = "GLL";
         private const string CheckRMC = "RMC";
         private const string CheckGGA = "GGA";
+
+
 
 
         /// <summary>
