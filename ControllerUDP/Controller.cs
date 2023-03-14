@@ -22,7 +22,7 @@ namespace UDPMagistral {
         private static IPEndPoint localIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4002);
 
         //Для получаения сообщения по протоколу конроллера 
-        private static string PROTOCOL_MESSAGE = "$PPPP,000000.00,000000,0000.0000,N,00000.0000,E,000.0,N,00.0,K,000.0,*5E"; //-стандартное сообщение 
+        private static string PROTOCOL_MESSAGE = "$PPPP,000000.00,000000,0000.0000,N,00000.0000,E,000.0,N,00.0,K,000.0*22"; //-стандартное сообщение 
         private static ProtokolMessage MESSAGE = new ProtokolMessage();
 
         //[STAThread]
@@ -89,7 +89,7 @@ namespace UDPMagistral {
         /// <summary>
         /// Метод для отправки сообщений к источникам 
         /// </summary>
-        /// <param name="datagram">Сформированное командное слово</param>
+        /// <param name="Command_Word">Сформированное командное слово</param>
         private static void SendToSources(string Command_Word) {
             // Создаем UdpClient
             UdpClient sender = new UdpClient();
@@ -118,7 +118,7 @@ namespace UDPMagistral {
         /// <summary>
         ///Метод для отправки приемникам 
         /// </summary>
-        /// <param name="Command_Word"></param>
+        /// <param name="Command_Word">Сформированное командное слово</param>
         private static void SendToReceivers(string Command_Word) {
             
             string message = PROTOCOL_MESSAGE;
@@ -167,7 +167,7 @@ namespace UDPMagistral {
             //Для проверки ответного слова
             string A = "0" , B = "0", C = "0", X = "0", D = "0", E = "0", F = "0", G = "0", H = "0";
             string ResponseWord = "";
-            
+            int flag = 0;//Прием информационных сообщений - 1 (0 - только ОС)
 
             Console.WriteLine("\n-----------Получение сообщений-----------");
 
@@ -176,20 +176,22 @@ namespace UDPMagistral {
                 //byte[] receiveBytes = receivingUdpClient.Receive(ref RemoteIpEndPoint);
                 try {
                     byte[] receiveBytes = new byte[2048];
-                    for (int i =0; i< receiveBytes.Length;  i++) receiveBytes[i] = 0;
-                    
+                    for (int i = 0; i < receiveBytes.Length; i++) receiveBytes[i] = 0;
+
                     //Получение данных через сокет 
                     udpSocket.ReceiveFrom(receiveBytes, ref RemoteIpEndPoint);
 
                     // Преобразуем и отображаем данные
                     string returnData = Encoding.ASCII.GetString(receiveBytes);
-                    string NMEAmes = Receive.GetMessageConnector(returnData);
-
-                    Console.WriteLine( Receive.GetMessageConnector(returnData) );
-
-                    PROTOCOL_MESSAGE = MESSAGE.GetMessage(NMEAmes);
+                    string NMEAmes = Receive.GetMessageConnector(returnData,out ResponseWord, out flag);
                     
-                    Console.WriteLine("===" + PROTOCOL_MESSAGE);
+                    //Есди флаг приема ИС - то обновляем наше ниформационное слово
+                    if (flag == 1) {
+
+                        PROTOCOL_MESSAGE = MESSAGE.GetMessage(NMEAmes);
+
+                        Console.WriteLine("===|  " + PROTOCOL_MESSAGE);
+                    }
 
                 } catch (Exception ex) {
                     //Console.WriteLine("Возникло исключение: " + ex.ToString() + "\n  " + ex.Message);

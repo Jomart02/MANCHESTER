@@ -36,7 +36,7 @@ string SUB_ADDR_Check = "00001";
 int PAUSE = 3000;
 
 //Отправка сообщений 
-string message = "$GPRMC,123519.00,A.000,E,,,230394,,,A*6A";
+string message = "$GNZDA,102030.00,20,02,2020,00,00*78";
 //byte[] datasend = Encoding.ASCII.GetBytes(message);
 string rec = string.Empty;
 EndPoint remotePoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4002);

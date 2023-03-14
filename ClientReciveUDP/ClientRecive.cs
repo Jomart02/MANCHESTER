@@ -52,7 +52,7 @@ while (true) {
     var messageres = Encoding.ASCII.GetString(datares, 0, result.ReceivedBytes);
 
     //выделяем командное слово из принятого сообщения
-    var COM_WORD = messageres.Substring(0, 20);
+    var COM_WORD = Encoding.ASCII.GetString(datares, 0, result.ReceivedBytes);
     //Проверка командного слова 
     ReadMessageProtokol.ReadCommandWord(COM_WORD, out N, out SYNS_C, out ADDR_RT_Check, out SUB_ADDR_Check, out WR);
     

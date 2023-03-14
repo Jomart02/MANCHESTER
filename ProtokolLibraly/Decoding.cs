@@ -146,7 +146,7 @@ namespace ProtokolLibrary {
         //public static string ResponseWord(string SYNC_C, string Addres) {
         public static string ResponseWord(string message , string SYNC_C, string Addres,string WR) {
 
-
+            
             string A = "0";
             string B = "0";
             string C = "0";
@@ -164,14 +164,15 @@ namespace ProtokolLibrary {
 
             if (WR == "1") ReadMessageProtokol.CheckInformationWord(message, out A, out B, out C, out X, out D, out E, out F, out G, out H);//Если идет отправка сообщения сообщения
             else {
-                string IW = ReadMessageProtokol.ReadInformationWord(message, out RW);
+                string IW = Receive.GetMessageClient(message);
+                
                 ReadMessageProtokol.CheckInformationWord(IW, out A, out B, out C, out X, out D, out E, out F, out G, out H);//Если идет прием сообщения
             }
                 //проверка на кс - если все норм то А = 1
 
-            //Console.WriteLine("dec" + IW);
+            
             string ParityBit = GetParityBit($"{Addres}{A}{B}{C}{X}{X}{X}{D}{E}{F}{G}{H}");
-            //Console.WriteLine($"Адрес - {Addres}\nА - {A}\nВ - {B}\nС - {C}\nX - {X}\nX - {X}\nX - {X}\nD -{D}\nE- {E}\nF - {F}\nG - {G}\nH - {H}");
+            
             return $"{SYNC_C}{Addres}{A}{B}{C}{X}{X}{X}{D}{E}{F}{G}{H}{ParityBit}";
         }
 
@@ -228,6 +229,7 @@ namespace ProtokolLibrary {
                     break;
 
                 case "2":
+                    
                     recive = MessageProtokol.ResponseWord( message ,SYNC, Addres , WR );//нужно реальное сообщение чтобы проверить его кс 
                     break;
             }
@@ -305,20 +307,22 @@ namespace ProtokolLibrary {
 
     public static class Receive {
         /// <summary>
-        /// Метод для обработки полученного пакета сообщения по сокетам, выделяет нужную информацию и отделяет ИС от ОС, проверяет ОС
+        /// Метод для обработки полученного пакета сообщения по сокетам, выделяет нужную информацию и отделяет ИС от ОС, проверяет ОС - только для контроллера 
         /// </summary>
         /// <param name="Message">Полученное сообщение коннектором</param>
         /// <returns></returns>
-        public static string GetMessageConnector(string Message) {
+        public static string GetMessageConnector(string Message, out string ResponseWord, out int flag) {
 
             string SYNX_C = "001";//Синхронизация для ОС
             string SYNC_D = "000";//Синхронизация для ИС
+            flag = 1;//Прием информационных сообщений - 1 (0 - только ОС)
 
-            string ResponseWord = ""; 
+            
             string ReceiveMes = "";
             string NMEAmes = "";
 
-            
+            ResponseWord = Message.Substring(0, 20);
+
             for (int i = 0; i < Message.Length; i += 20) {
 
 
@@ -326,7 +330,7 @@ namespace ProtokolLibrary {
 
                     if (Message.Substring(i, 3) == SYNX_C) {
 
-                        ResponseWord += Message.Substring(i, 20);
+                        ResponseWord = Message.Substring(i, 20);
                         //Message.Remove(i, 20);
 
                     } else if (Message.Substring(i, 3) == SYNC_D) {
@@ -334,16 +338,28 @@ namespace ProtokolLibrary {
                         NMEAmes += Message.Substring(i, 20);
                     }
                 } else break;
+
             }
 
-         
+            //Если нет ИС - только ОС
+            if (NMEAmes == "") {
+                flag = 0;
+                //Console.WriteLine(ReadMessageProtokol.ReadResponseWord(ResponseWord));
+                return Message;
+            }
 
+            //Console.WriteLine(ReadMessageProtokol.ReadResponseWord(ResponseWord));
             ReceiveMes += ReadMessageProtokol.ReadInformationWord(NMEAmes);
             
-
             return ReceiveMes;
         }
 
+
+        /// <summary>
+        /// Метод для обработки полученного пакета сообщения по сокетам, выделяет нужную информацию и отделяет ИС от КС, проверяет КС - только для контроллера 
+        /// </summary>
+        /// <param name="Message">Полученное информационное сообщение коннектором</param>
+        /// <returns></returns>
         public static string GetMessageClient(string Message) {
 
             string SYNX_C = "001";//Синхронизация для КС
@@ -374,6 +390,7 @@ namespace ProtokolLibrary {
 
 
             ReceiveMes += ReadMessageProtokol.ReadInformationWord(NMEAmes);
+            
 
             return ReceiveMes;
         }
@@ -388,7 +405,7 @@ namespace ProtokolLibrary {
 
         //private static List<string> IWtoMessage;
         /// <summary>
-        /// Метод для расшифровки комендного слова 
+        /// Метод для расшифровки комендного слова - принимает весь пакет и берет из него первые 20 символов для чтения только КС 
         /// </summary>
         /// <param name="Word"></param>
         /// <param name="N"></param>
@@ -399,6 +416,8 @@ namespace ProtokolLibrary {
         
         public static void ReadCommandWord(string Word, out int N, out string SYNC_C, out string ADDR_RT , out string SUB_ADDRT , out char WR) {
             //string binary = Convert.ToString(value, 2); число в строку ']
+
+            Word = Word.Substring(0,20);
             WR = Word[8];
             string Num = Word.Substring(14, 5);
 
@@ -418,7 +437,7 @@ namespace ProtokolLibrary {
         }
 
         /// <summary>
-        /// Метод для перекодировки пакета информационных слов и формулирования сообщения
+        /// Метод для перекодировки пакета информационных слов и формулирования сообщения - если пакет один
         /// </summary>
         /// <param name="BinIW">Информационное слово в двоичном формате</param>
         /// <param name="BinIW">Информационное слово в двоичном формате</param>y0
@@ -472,6 +491,7 @@ namespace ProtokolLibrary {
                 return "Error";
             }
 
+
             return Decoding.BinaryToStringAll(inform);
         }
 
@@ -500,6 +520,7 @@ namespace ProtokolLibrary {
 
         //Проверка информационного слова его контрольная сумма  
         public static void CheckInformationWord(string message , out string A ,out string B,out string C, out string X,out string D, out string E, out string F, out string G, out string H ){
+  
             A = "0";
             B = "0";
             C = "0";
@@ -509,9 +530,6 @@ namespace ProtokolLibrary {
             F = "0";
             G = "0";
             H = "0";
-
-
-
 
             string checkCS = GetChecksum(message);
             int CS = message.IndexOf('*') + 1 ;
@@ -523,9 +541,15 @@ namespace ProtokolLibrary {
 
         private static string GetChecksum(string message) {
             //Стартовый символ
-            int checksum = Convert.ToByte(message[message.IndexOf('$') + 1]);
+           // int checksum = Convert.ToByte(message[message.IndexOf('$') + 1]);
             // Перебор всех символов для получения кс
-            for (int i = message.IndexOf('$') + 2; i < message.IndexOf('*'); i++) {
+            int startsum = (message.IndexOf('$') + 1 );
+            int lastsum = (message.IndexOf('*') - 1);
+
+            message = message.Substring(startsum, lastsum);
+            int checksum = Convert.ToByte(message[0]);
+            // Перебор всех символов для получения кс
+            for (int i = 1; i < message.Length; i++) {
                 // XOR кс по каждому символу
                 checksum ^= Convert.ToByte(message[i]);
             }

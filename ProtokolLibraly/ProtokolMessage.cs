@@ -62,14 +62,18 @@ namespace ProtokolLibraly {
             string CONTROL_SUM = "";
 
             NMEAReader N = new NMEAReader();
+            
 
-           // N.GetData(NMEA_MES, PROTOCKOL_MESSAGE);
+            N.GetData(NMEA_MES, PROTOCKOL_MESSAGE);
+
+
+
            string SEND_PM = $"{CODE},{PROTOCKOL_MESSAGE["TIME"]},{PROTOCKOL_MESSAGE["DATE"]}," +
                     $"{PROTOCKOL_MESSAGE["LATITUDE"]},{PROTOCKOL_MESSAGE["NS_INDICATOR"]}," +
                     $"{PROTOCKOL_MESSAGE["LONGITUDE"]},{PROTOCKOL_MESSAGE["EW_INDICATOR"]}," +
                     $"{PROTOCKOL_MESSAGE["VELOCITY_KNOTS"]},{PROTOCKOL_MESSAGE["UNITS_KNOTS"]}," +
                     $"{PROTOCKOL_MESSAGE["VELOCITY_KMPH"]},{PROTOCKOL_MESSAGE["UNITS_KMPH"]}," +
-                    $"{PROTOCKOL_MESSAGE["TRUE_COURSE"]},";
+                    $"{PROTOCKOL_MESSAGE["TRUE_COURSE"]}";
 
             CONTROL_SUM = N.GetChecksum(SEND_PM);
 
@@ -84,9 +88,6 @@ namespace ProtokolLibraly {
         private const string CheckRMC = "RMC";
         private const string CheckGGA = "GGA";
 
-
-
-
         /// <summary>
         /// Возвращает данные для сообщения по протоколу из полученного сообщения
         /// </summary>
@@ -95,13 +96,14 @@ namespace ProtokolLibraly {
         internal Dictionary<string,string> GetData(string NMEA_MES ,Dictionary<string , string > PROTOCKOL_MESSAGE) {
 
 
-
+            
             //Все сообщения NMEA из информационного слова 
             List<string> ListMessage = new List<string>();
-            
             ListMessage = SearchMessage(NMEA_MES);
             int count = ListMessage.Count;
             int i = 0;
+
+           
 
             //Индефикатор
             string CheckIndef; 
@@ -110,19 +112,30 @@ namespace ProtokolLibraly {
             while (i<count) {
 
 
-                CheckIndef = GetCode(ListMessage[i]);
-
+                CheckIndef = GetCode(ListMessage[i]);//Получение кода 
+                
+                string DATA = FormattingDate(ListMessage[i]);//Получение только данных из сообщения
+                
+                List<string> DATA_MAS= new List<string>(DATA.Split(','));//Получаю массив данных 
+                
                 switch (CheckIndef) {
 
-                    case СheckZDA: { } break;
-                    case CheckGGL: { } break;
-                    case CheckRMC: { } break;
-                    case CheckGGA: { } break;
+                    case СheckZDA: {
+                            
+                            PROTOCKOL_MESSAGE["TIME"] = DATA_MAS[0];
+                            PROTOCKOL_MESSAGE["DATE"] = $"{DATA_MAS[1]}{DATA_MAS[2]}{DATA_MAS[3].Substring(DATA_MAS[3].Length-2)}";
+                            i++;
+                        } break;
+                    case CheckGGL: { i++; } break;
+                    case CheckRMC: { i++; } break;
+                    case CheckGGA: { i++; } break;
+                    default: { i++; } break;
 
                 }
-
+                
+                i++;
             }
-           
+            
             return PROTOCKOL_MESSAGE;
         }
 
@@ -188,13 +201,24 @@ namespace ProtokolLibraly {
             //Возвращает массив сообщений 
             return MasMessage;
         }
+        internal string FormattingDate(string NMEAmes) {
+
+           
+            int startsum = (NMEAmes.IndexOf('$') + 7);
+            int lastsum = (26);
+            
+            NMEAmes = NMEAmes.Substring(startsum, lastsum);
+            
+            return NMEAmes;
+        }
+
 
         internal string GetChecksum(string message) {
             //Стартовый символ
             int checksum = Convert.ToByte(message[0]);
-
+            
             // Перебор всех символов для получения кс
-            for (int i = 0; i < message.Length; i++) {
+            for (int i = 1; i < message.Length; i++) {
                 // XOR кс по каждому символу
                 checksum ^= Convert.ToByte(message[i]);
             }
