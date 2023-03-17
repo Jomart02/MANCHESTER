@@ -14,7 +14,6 @@ namespace ProtokolLibraly {
     public class ProtokolMessage {
 
 
-
         Dictionary<string, string> PROTOCKOL_MESSAGE = new Dictionary<string, string> {
 
                 {   "TIME",             "000000.00"     },
@@ -87,6 +86,7 @@ namespace ProtokolLibraly {
         private const string CheckGGL = "GLL";
         private const string CheckRMC = "RMC";
         private const string CheckGGA = "GGA";
+        private const string CheckVTG = "VTG";
 
         /// <summary>
         /// Возвращает данные для сообщения по протоколу из полученного сообщения
@@ -125,12 +125,44 @@ namespace ProtokolLibraly {
                             PROTOCKOL_MESSAGE["TIME"] = DATA_MAS[0];
                             PROTOCKOL_MESSAGE["DATE"] = $"{DATA_MAS[1]}{DATA_MAS[2]}{DATA_MAS[3].Substring(DATA_MAS[3].Length-2)}";
                             i++;
-                        } break;
-                    case CheckGGL: { i++; } break;
-                    case CheckRMC: { i++; } break;
-                    case CheckGGA: { i++; } break;
-                    default: { i++; } break;
+                    } break;
+                    case CheckGGL: {
+                            PROTOCKOL_MESSAGE["LATITUDE"] = DATA_MAS[0];
+                            PROTOCKOL_MESSAGE["NS_INDICATOR"] = DATA_MAS[1];
+                            PROTOCKOL_MESSAGE["LONGITUDE"] = DATA_MAS[2];
+                            PROTOCKOL_MESSAGE["EW_INDICATOR"] = DATA_MAS[3];
+                            PROTOCKOL_MESSAGE["TIME"] = DATA_MAS[4];
+                            i++; 
+                    } break;
+                    case CheckRMC: {
+                            PROTOCKOL_MESSAGE["TIME"] = DATA_MAS[0];
+                            PROTOCKOL_MESSAGE["LATITUDE"] = DATA_MAS[2];
+                            PROTOCKOL_MESSAGE["NS_INDICATOR"] = DATA_MAS[3];
+                            PROTOCKOL_MESSAGE["LONGITUDE"] = DATA_MAS[4];
+                            PROTOCKOL_MESSAGE["EW_INDICATOR"] = DATA_MAS[5];
+                            PROTOCKOL_MESSAGE["VELOCITY_KNOTS"] = DATA_MAS[6];
+                            PROTOCKOL_MESSAGE["TRUE_COURSE"] = DATA_MAS[7];
+                            PROTOCKOL_MESSAGE["DATE"] = DATA_MAS[8];
+                            i++; 
+                    } break;
+                    case CheckGGA: {
+                            PROTOCKOL_MESSAGE["TIME"] = DATA_MAS[0];
+                            PROTOCKOL_MESSAGE["LATITUDE"] = DATA_MAS[1];
+                            PROTOCKOL_MESSAGE["NS_INDICATOR"] = DATA_MAS[2];
+                            PROTOCKOL_MESSAGE["LONGITUDE"] = DATA_MAS[3];
+                            PROTOCKOL_MESSAGE["EW_INDICATOR"] = DATA_MAS[4];
+                            i++;
+                    } break;
+                    case CheckVTG: {
+                            PROTOCKOL_MESSAGE["TRUE_COURSE"] = DATA_MAS[0];
+                            PROTOCKOL_MESSAGE["VELOCITY_KNOTS"] = DATA_MAS[4];
+                            PROTOCKOL_MESSAGE["UNITS_KNOTS"] = DATA_MAS[5];
+                            PROTOCKOL_MESSAGE["VELOCITY_KMPH"] = DATA_MAS[6];
+                            PROTOCKOL_MESSAGE["UNITS_KMPH"] = DATA_MAS[7];
+                            i++;
+                     } break;
 
+                    default: { i++; } break;
                 }
                 
                 i++;
@@ -205,9 +237,9 @@ namespace ProtokolLibraly {
 
            
             int startsum = (NMEAmes.IndexOf('$') + 7);
-            int lastsum = (26);
+            int length = (NMEAmes.Length - 10);
             
-            NMEAmes = NMEAmes.Substring(startsum, lastsum);
+            NMEAmes = NMEAmes.Substring(startsum, length);
             
             return NMEAmes;
         }
